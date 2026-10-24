@@ -1,0 +1,24 @@
+{
+  "name": "afghan-bites-prototype",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {}
+}

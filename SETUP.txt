@@ -1,0 +1,57 @@
+AFGHAN BITES: POSTGRESQL + EXPRESS API
+
+REQUIREMENTS
+- Node.js 20 or newer
+- PostgreSQL 14 or newer
+
+1. CREATE DATABASE
+   Open psql or pgAdmin and run:
+   CREATE DATABASE afghan_bites;
+
+2. CREATE TABLES AND INSERT STARTER MENU
+   From the project root, run these in order against afghan_bites:
+   psql -U postgres -d afghan_bites -f database/schema.sql
+   psql -U postgres -d afghan_bites -f database/seed.sql
+   Or open each SQL file in pgAdmin Query Tool and execute it.
+
+3. CONFIGURE ENVIRONMENT
+   Copy .env.example to .env and set DATABASE_URL to your local PostgreSQL username/password. Keep VITE_API_URL at http://localhost:4000/api unless you change the backend port. Set ADMIN_EMAIL, ADMIN_PASSWORD (at least 12 characters), and AUTH_SECRET in .env. Change the example admin password before use; the server creates/updates this admin account at startup.
+   Example:
+   DATABASE_URL=postgresql://postgres:your_password@localhost:5432/afghan_bites
+
+4. INSTALL DEPENDENCIES
+   npm install
+
+5. START API (terminal 1)
+   npm run server
+   API runs at http://localhost:4000
+   Test database connection: http://localhost:4000/api/health
+
+6. START REACT FRONTEND (terminal 2)
+   npm run dev
+   Open http://localhost:5173. The frontend calls the Express API at http://localhost:4000/api; they intentionally run on separate ports.
+
+API ROUTES
+- GET    /api/health
+- GET    /api/categories
+- GET    /api/menu
+- POST   /api/auth/register (public registration always creates a customer)
+- POST   /api/auth/login
+- GET    /api/auth/me (requires login)
+- POST   /api/menu (admin only)
+- PUT    /api/menu/:id (admin only)
+- DELETE /api/menu/:id (admin only)
+- GET    /api/orders (admin only)
+- POST   /api/orders
+- POST   /api/contact-messages
+
+IMPORTANT SECURITY NOTE
+This is a learning/development backend. Menu-management and order-list endpoints require an administrator account. Customer registration cannot create admin accounts. Before deploying publicly, use a strong unique AUTH_SECRET, a strong admin password, HTTPS, rate limiting, and production-grade security practices. Never put DATABASE_URL in frontend code.
+
+
+TROUBLESHOOTING
+- Open http://localhost:4000/api/health. It should return {"status":"ok","database":"connected"}.
+- Open http://localhost:4000/api/menu to confirm the menu endpoint returns JSON.
+- If the frontend cannot connect, start `npm run server` in one terminal and `npm run dev` in another.
+- If port 4000 is already in use, stop the other server with Ctrl+C before starting this API.
+- If PostgreSQL reports a missing table, run database/schema.sql and then database/seed.sql against the afghan_bites database.

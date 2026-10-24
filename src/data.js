@@ -1,0 +1,78 @@
+const initialMeals = [
+  {
+    id: 1,
+    name: "Kabuli Pulao",
+    category: "Main meals",
+    image: "/images/kabuli-pulao.svg",
+    priceAFN: 150,
+    ingredients: "Rice, carrots, raisins, tender beef, spices.",
+    available: true,
+  },
+  {
+    id: 2,
+    name: "Chicken Qorma",
+    category: "Main meals",
+    image: "/images/chicken-qorma.svg",
+    priceAFN: 180,
+    ingredients: "Chicken, onion, yogurt, garlic, warm spices.",
+    available: true,
+  },
+  {
+    id: 3,
+    name: "Bolani",
+    category: "Main meals",
+    image: "/images/bolani.svg",
+    priceAFN: 90,
+    ingredients: "Flatbread filled with potato, herbs and scallions.",
+    available: false,
+  },
+  {
+    id: 4,
+    name: "Fresh Orange Juice",
+    category: "Drinks",
+    image: "/images/orange-juice.svg",
+    priceAFN: 40,
+    ingredients: "Fresh oranges and a little chilled water.",
+    available: true,
+  },
+  {
+    id: 5,
+    name: "Mint Doogh",
+    category: "Drinks",
+    image: "/images/doogh.svg",
+    priceAFN: 40,
+    ingredients: "Yogurt, water, dried mint and a pinch of salt.",
+    available: true,
+  },
+  {
+    id: 6,
+    name: "Green Tea",
+    category: "Drinks",
+    image: "/images/green-tea.svg",
+    priceAFN: 25,
+    ingredients: "Green tea leaves and hot water.",
+    available: true,
+  },
+  {
+    id: 7,
+    name: "Firni",
+    category: "Desserts",
+    image: "/images/firni.svg",
+    priceAFN: 60,
+    ingredients: "Milk, rice flour, cardamom and pistachio.",
+    available: true,
+  },
+  {
+    id: 8,
+    name: "Sheer Yakh",
+    category: "Desserts",
+    image: "/images/sheer-yakh.svg",
+    priceAFN: 70,
+    ingredients: "Creamy homemade ice cream with cardamom.",
+    available: false,
+  },
+];
+const categories = ["All categories", "Main meals", "Drinks", "Desserts"];
+const money = (value) => `${value.toLocaleString()} AFN`;
+
+export { initialMeals, categories, money };
