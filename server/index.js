@@ -9,20 +9,27 @@ const app = express();
 const port = Number(process.env.PORT || 4000);
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
-  console.error('DATABASE_URL is missing. Copy .env.example to .env in the project root and set DATABASE_URL.');
-  process.exit(1);
+  throw new Error('DATABASE_URL is missing. Set it in the deployment environment.');
 }
 try {
   const parsedDatabaseUrl = new URL(databaseUrl);
   if (!['postgres:', 'postgresql:'].includes(parsedDatabaseUrl.protocol)) throw new Error('DATABASE_URL must use postgres:// or postgresql://.');
   if (!parsedDatabaseUrl.password) throw new Error('DATABASE_URL has no password. Add your PostgreSQL password; URL-encode special characters such as @, #, /, or %.');
 } catch (error) {
-  console.error(`Invalid DATABASE_URL: ${error.message}`);
-  process.exit(1);
+  throw new Error(`Invalid DATABASE_URL: ${error.message}`);
 }
 const pool = new Pool({ connectionString: databaseUrl, ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined });
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json({ limit: '100kb' }));
+
+// Initialize authentication before handling API routes on each Vercel instance.
+let initializationPromise;
+if (process.env.VERCEL) {
+  app.use((req, res, next) => {
+    if (!initializationPromise) initializationPromise = initializeAuth();
+    initializationPromise.then(() => next()).catch(next);
+  });
+}
 
 const asyncRoute = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const toMeal = row => ({ id: Number(row.id), name: row.name, category: row.category, image: row.image_url, priceAFN: Number(row.price_afn), ingredients: row.description, available: row.is_available });
@@ -191,23 +198,17 @@ async function initializeAuth() {
   await pool.query(`INSERT INTO app_users(full_name,email,phone,password_salt,password_hash,role) VALUES('System Administrator',$1,'',$2,$3,'admin')
     ON CONFLICT(email) DO UPDATE SET password_salt=EXCLUDED.password_salt,password_hash=EXCLUDED.password_hash,role='admin'`, [adminEmail, salt, hash]);
 }
-const isVercel = Boolean(process.env.VERCEL);
+// Export the Express app so Vercel can run it as a serverless function.
+export default app;
 
-if (isVercel) {
-  await initializeAuth();
-  app.get("/", (_req, res) => {
-    res.json({ message: "Afghan Bites API is running" });
-  });
-  // Export the Express app for Vercel.
-} else {
+// Keep the normal local development workflow working.
+if (!process.env.VERCEL) {
   initializeAuth()
-    .then(() => {
-      app.listen(port, () => {
-        console.log(`Afghan Bites API listening on http://localhost:${port}`);
-      });
-    })
-    .catch((error) => {
+    .then(() => app.listen(port, () => console.log(`Afghan Bites API listening on http://localhost:${port}`)))
+    .catch(error => {
       console.error(`Could not initialize authentication: ${error.message}`);
       process.exit(1);
     });
+  process.on('SIGINT', async () => { await pool.end(); process.exit(0); });
+  process.on('SIGTERM', async () => { await pool.end(); process.exit(0); });
 }
