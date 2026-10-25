@@ -1,5 +1,5 @@
 const API_BASE = (
-  import.meta.env.VITE_API_URL || "http://localhost:4000/api"
+  import.meta.env.VITE_API_URL || "https://restaurant-online-order-6h69.onrender.com/api"
 ).replace(/\/$/, "");
 
 async function request(path, options = {}) {
