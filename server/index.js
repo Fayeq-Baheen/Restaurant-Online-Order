@@ -191,6 +191,23 @@ async function initializeAuth() {
   await pool.query(`INSERT INTO app_users(full_name,email,phone,password_salt,password_hash,role) VALUES('System Administrator',$1,'',$2,$3,'admin')
     ON CONFLICT(email) DO UPDATE SET password_salt=EXCLUDED.password_salt,password_hash=EXCLUDED.password_hash,role='admin'`, [adminEmail, salt, hash]);
 }
-initializeAuth().then(() => app.listen(port,()=>console.log(`Afghan Bites API listening on http://localhost:${port}`))).catch(error => { console.error(`Could not initialize authentication: ${error.message}`); process.exit(1); });
-process.on('SIGINT',async()=>{await pool.end();process.exit(0)});
-process.on('SIGTERM',async()=>{await pool.end();process.exit(0)});
+const isVercel = Boolean(process.env.VERCEL);
+
+if (isVercel) {
+  await initializeAuth();
+  app.get("/", (_req, res) => {
+    res.json({ message: "Afghan Bites API is running" });
+  });
+  // Export the Express app for Vercel.
+} else {
+  initializeAuth()
+    .then(() => {
+      app.listen(port, () => {
+        console.log(`Afghan Bites API listening on http://localhost:${port}`);
+      });
+    })
+    .catch((error) => {
+      console.error(`Could not initialize authentication: ${error.message}`);
+      process.exit(1);
+    });
+}
